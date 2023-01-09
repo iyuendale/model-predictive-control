@@ -16,30 +16,30 @@ nB = length(B);
 %Formulation of F
 f=[1 zeros(1, nAt-2)];
 for j=1:N,
-for i=1:nAt-2
-    f(j+1,i)=f(j,i+1)-f(j,1)*At(i+1);
-end
-f(j+1,nAt-1) = -f(j)*At(nAt);
+	for i=1:nAt-2
+		f(j+1,i)=f(j,i+1)-f(j,1)*At(i+1);
+	end
+	f(j+1,nAt-1) = -f(j)*At(nAt);
 end
 F=f(1+N1:1+N2,:);
 %Formulation of E
 E=zeros(N2);
 e(1)=1;E(1,1)=e(1);
 for j=2:N2,
- e(j)=f(j,1);
- E(j,1:j)=e;
+	e(j)=f(j,1);
+	E(j,1:j)=e;
 end,
 E=E(N1:N2,:);
 %Predition horizon
 for j=1:N
-Gl(j,:) = conv(E(j,:),B);
+	Gl(j,:) = conv(E(j,:),B);
 end
 Gl;
 ngb=length(Gl);
 G = zeros(N,Nu);
 %Formulation of G - future
 for i = 1:N,
- Gp(i,:)= Gl(i,i+1:ngb-N+i); % Gp - past
+	Gp(i,:)= Gl(i,i+1:ngb-N+i); % Gp - past
 end,
 G=toeplitz(Gl(N,1:N), zeros(1,Nu)); %G - future
 %Control Formulation
@@ -63,28 +63,28 @@ den=conv(R_,At)+conv(Bz1,S_);
 yrst=filter(num,den,[0 ones(1,nts+1)]);
 urst=filter(num_u,den,[0 ones(1,nts+1)]);
 if nB > 1
- dup = zeros(nB-1,1);
+	dup = zeros(nB-1,1);
 end
 u0 = 0;
 y=0; yp = zeros(nA, 1);
 for k = 1:nts+1
- yp = [y(k); yp(1:end-1)];
- if nB == 1
- fr = F*yp;
- else
- fr = F*yp + Gp*dup;
- end
- w = ones(N,1);
- du(k) = K*(w-fr);
- disp(du(k));
- u(k) = du(k) + u0;
- disp(u(k));
- [y(k+1), zf] = filter(B,A,u(k),zi);
- zi = zf;
- if nB>1
- dup = du(k); dup(1:end-1);
- end
- u0 = u(k);
+	yp = [y(k); yp(1:end-1)];
+	if nB == 1
+		fr = F*yp;
+	else
+		fr = F*yp + Gp*dup;
+	end
+	w = ones(N,1);
+	du(k) = K*(w-fr);
+	disp(du(k));
+	u(k) = du(k) + u0;
+	disp(u(k));
+	[y(k+1), zf] = filter(B,A,u(k),zi);
+	zi = zf;
+	if nB>1
+		dup = du(k); dup(1:end-1);
+	end
+	u0 = u(k);
 end
 ygpc=y; ugpc=u;
 t = 0:Ts:T;
